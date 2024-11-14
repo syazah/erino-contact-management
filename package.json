@@ -1,0 +1,20 @@
+{
+  "name": "erino-assignment",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsc -b && nodemon ./dist/index.js"
+  },
+  "keywords": [
+    "erino",
+    "assignment"
+  ],
+  "author": "syazah",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@types/express": "^5.0.0",
+    "express": "^4.21.1",
+    "nodemon": "^3.1.7"
+  }
+}
