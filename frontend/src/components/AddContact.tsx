@@ -6,11 +6,36 @@ import {
   Typography,
 } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import axios from "axios";
+import { UserContext } from "../UserContextProvider";
+// TYPES
 interface AddButtonProps {
   setAddContactOpen: (open: boolean) => void;
 }
+type FormDataType = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  company: string;
+  jobTitle: string;
+};
+type contactResponse = {
+  success: boolean;
+  data: {
+    id: number;
+    firstName: string;
+    lastName?: string;
+    email: string;
+    phoneNumber: string;
+    company: string;
+    jobTitle: string;
+  };
+  message?: string;
+};
+
+// FUNCTIONS
 function AddContact({ setAddContactOpen }: AddButtonProps) {
   return (
     <Container
@@ -56,27 +81,7 @@ function AddContact({ setAddContactOpen }: AddButtonProps) {
     </Container>
   );
 }
-type FormDataType = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  company: string;
-  jobTitle: string;
-};
-type contactResponse = {
-  success: boolean;
-  data: {
-    id: number;
-    firstName: string;
-    lastName?: string;
-    email: string;
-    phoneNumber: string;
-    company: string;
-    jobTitle: string;
-  };
-  message?: string;
-};
+
 function ContactForm({ setAddContactOpen }: AddButtonProps) {
   const [formData, setFormData] = useState<FormDataType>({
     firstName: "",
@@ -87,6 +92,7 @@ function ContactForm({ setAddContactOpen }: AddButtonProps) {
     jobTitle: "",
   });
   const [loading, setLoading] = useState(false);
+  const context = useContext(UserContext);
   async function AddContactEntry(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     try {
@@ -109,14 +115,25 @@ function ContactForm({ setAddContactOpen }: AddButtonProps) {
           jobTitle: "",
         });
         setLoading(false);
+        context?.setReload(true);
         return setAddContactOpen(false);
       } else {
-        console.log(data.message);
+        context?.setCurrentError({
+          ocurred: true,
+          message: data.message || "Something went wrong",
+        });
       }
       setLoading(false);
     } catch (error) {
+      if (axios.isAxiosError(error)) {
+        context?.setCurrentError({
+          ocurred: true,
+          message:
+            error.response?.data?.message ||
+            "Something went wrong while updating the contact",
+        });
+      }
       setLoading(false);
-      console.log(error);
     }
   }
   return (

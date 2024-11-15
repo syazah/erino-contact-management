@@ -21,8 +21,11 @@ import AddContact from "../components/AddContact.tsx";
 import KebabMenu from "../components/KebabMenu.tsx";
 import UpdateContact from "../components/UpdateContact.tsx";
 import { UserContext } from "../UserContextProvider.tsx";
+import { ErrorOutline } from "@mui/icons-material";
 
+// TYPES
 type contactResponse = {
+  success: boolean;
   data: {
     id: number;
     firstName: string;
@@ -34,39 +37,57 @@ type contactResponse = {
   }[];
   message?: string;
 };
+interface DataTableProps {
+  contactData: contactResponse | null;
+}
+interface AddButtonProps {
+  setAddContactOpen: (open: boolean) => void;
+}
+
+// MAIN FUNCTIONS
 function Home() {
   const [contactData, setContactData] = useState<contactResponse | null>(null);
   const context = useContext(UserContext);
-  const [errorOcurred, setErrorOcurred] = useState({
-    ocurred: false,
-    message: "",
-  });
+
   const [addContactOpen, setAddContactOpen] = useState(false);
+  //   GETTING CONTACT DATA
   async function GetContactData() {
     try {
       const res = await axios.get("http://localhost:8000/api/v1/contacts", {
         headers: { "Content-Type": "application/json" },
       });
       const data: contactResponse = res.data;
-      if (data) {
+      if (data.success) {
         setContactData(data);
+        context?.setCurrentError({ ocurred: false, message: "" });
       } else {
-        setErrorOcurred({
+        context?.setCurrentError({
           ocurred: true,
-          message: data,
+          message: data?.message || "Something went wrong",
         });
       }
     } catch (error) {
-      console.log(error);
-      setErrorOcurred({
-        ocurred: true,
-        message: "Something went wrong while fetching contacts",
-      });
+      if (axios.isAxiosError(error)) {
+        context?.setCurrentError({
+          ocurred: true,
+          message:
+            error.response?.data?.message ||
+            "Something went wrong while fetching contacts",
+        });
+      } else {
+        context?.setCurrentError({
+          ocurred: true,
+          message: "An unexpected error occurred",
+        });
+      }
     }
   }
   useEffect(() => {
-    GetContactData();
-  }, []);
+    if (context?.reload) {
+      GetContactData();
+      context.setReload(false);
+    }
+  }, [context?.reload]);
   return (
     <Box
       sx={{
@@ -84,10 +105,23 @@ function Home() {
       {contactData === null && <LinearProgress />}
       <AddButton setAddContactOpen={setAddContactOpen} />
       <Snackbar
-        open={errorOcurred.ocurred}
+        open={context?.currentError.ocurred}
         autoHideDuration={6000}
-        onClose={() => setErrorOcurred({ ocurred: false, message: "" })}
-        message={errorOcurred.message}
+        onClose={() =>
+          context?.setCurrentError({ ocurred: false, message: "" })
+        }
+        message={
+          <span
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <ErrorOutline style={{ marginRight: 8, color: "red" }} />
+            {context?.currentError.message}
+          </span>
+        }
       />
       {/* BANNER  */}
       <Banner />
@@ -116,9 +150,6 @@ function Home() {
   );
 }
 
-interface DataTableProps {
-  contactData: contactResponse | null;
-}
 function DataTable({ contactData }: DataTableProps) {
   return (
     <TableContainer>
@@ -191,9 +222,7 @@ function DataTable({ contactData }: DataTableProps) {
     </TableContainer>
   );
 }
-interface AddButtonProps {
-  setAddContactOpen: (open: boolean) => void;
-}
+
 function AddButton({ setAddContactOpen }: AddButtonProps) {
   return (
     <Fab

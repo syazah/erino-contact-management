@@ -6,7 +6,14 @@ function App() {
   return (
     <Suspense
       fallback={
-        <Container sx={{ justifyContent: "center", alignItems: "center" }}>
+        <Container
+          sx={{
+            height: "100vh",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
           <CircularProgress />
         </Container>
       }

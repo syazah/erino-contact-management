@@ -63,7 +63,8 @@ export const GetAllContactsController = async (
 ) => {
   try {
     const contacts = await prisma.contact.findMany({});
-    if (!contacts || contacts.length === 0) {
+
+    if (!contacts) {
       return next(
         ErrorHandler(
           500,

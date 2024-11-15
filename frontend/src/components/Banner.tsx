@@ -50,7 +50,7 @@ function Banner() {
               height: "70px",
               position: "absolute",
               top: "50%",
-              left: "34%",
+              left: "30%",
               transform: "translate(-50%, -50%)",
               zIndex: 8,
               opacity: 0.2,
@@ -64,7 +64,7 @@ function Banner() {
               height: "70px",
               position: "absolute",
               top: "50%",
-              left: "42%",
+              left: "38%",
               transform: "translate(-50%, -50%)",
               zIndex: 9,
               opacity: 0.6,
@@ -83,7 +83,7 @@ function Banner() {
               zIndex: 10,
             }}
             alt="Remy Sharp"
-            src="https://images.pexels.com/photos/7792803/pexels-photo-7792803.jpeg?auto=compress&cs=tinysrgb&w=600"
+            src="https://images.pexels.com/photos/17190261/pexels-photo-17190261/free-photo-of-cafe-logo-under-yellow-wall.jpeg?auto=compress&cs=tinysrgb&w=600"
           />
           <Avatar
             sx={{
@@ -91,7 +91,7 @@ function Banner() {
               height: "70px",
               position: "absolute",
               top: "50%",
-              left: "60%",
+              left: "64%",
               transform: "translate(-50%, -50%)",
               zIndex: 9,
               opacity: 0.6,
@@ -105,7 +105,7 @@ function Banner() {
               height: "70px",
               position: "absolute",
               top: "50%",
-              left: "65%",
+              left: "72%",
               transform: "translate(-50%, -50%)",
               zIndex: 8,
               opacity: 0.2,

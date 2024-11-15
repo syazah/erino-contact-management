@@ -1,12 +1,8 @@
 import React, { useContext, useState } from "react";
-import { Alert, IconButton, Menu, MenuItem } from "@mui/material";
+import { IconButton, Menu, MenuItem } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { UserContext } from "../UserContextProvider.tsx";
-import {
-  CheckCircleOutline,
-  DeleteForever,
-  PersonPinCircle,
-} from "@mui/icons-material";
+import { Delete, Update } from "@mui/icons-material";
 import axios from "axios";
 
 type contactResponse = {
@@ -38,7 +34,6 @@ interface menuProp {
 
 function KebabMenu({ id, item }: menuProp) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
   const context = useContext(UserContext);
 
@@ -60,10 +55,23 @@ function KebabMenu({ id, item }: menuProp) {
       );
       const data: contactResponse = res.data;
       if (data.success) {
-        setAlertMessage("This Contact Was Deleted");
+        context?.setReload(true);
+        alert("Deleted");
+      } else {
+        context?.setCurrentError({
+          ocurred: true,
+          message: data.message || "Something went wrong",
+        });
       }
     } catch (error) {
-      console.log(error);
+      if (axios.isAxiosError(error)) {
+        context?.setCurrentError({
+          ocurred: true,
+          message:
+            error.response?.data?.message ||
+            "Something went wrong while updating the contact",
+        });
+      }
     }
   }
 
@@ -74,12 +82,13 @@ function KebabMenu({ id, item }: menuProp) {
       </IconButton>
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
         <MenuItem onClick={HandleDelete}>
-          <DeleteForever sx={{ color: "red" }} />
+          <Delete sx={{ color: "red" }} />
+          Delete
         </MenuItem>
         <MenuItem
           onClick={() => {
             if (!context) {
-              console.error("UserContext is not available");
+              alert("User context not present, please reload");
               return null;
             }
             context.setUpdateItem(item);
@@ -87,17 +96,10 @@ function KebabMenu({ id, item }: menuProp) {
             return handleClose();
           }}
         >
-          <PersonPinCircle sx={{ color: "primary.main" }} />
+          <Update sx={{ color: "primary.main" }} />
+          Update
         </MenuItem>
       </Menu>
-      {alertMessage && (
-        <Alert
-          icon={<CheckCircleOutline fontSize="inherit" />}
-          severity="success"
-        >
-          {alertMessage}
-        </Alert>
-      )}
     </div>
   );
 }

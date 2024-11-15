@@ -10,6 +10,43 @@ import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { UserContext } from "../UserContextProvider";
 
+// TYPES
+type FormDataType = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  company: string;
+  jobTitle: string;
+};
+type contactResponse = {
+  success: boolean;
+  data: {
+    id: number;
+    firstName: string;
+    lastName?: string;
+    email: string;
+    phoneNumber: string;
+    company: string;
+    jobTitle: string;
+  };
+  message?: string;
+};
+
+type openUpdateProp = {
+  setOpenUpdatePopup: React.Dispatch<React.SetStateAction<boolean>>;
+  updateItem: {
+    id: number;
+    firstName: string;
+    lastName?: string;
+    email: string;
+    phoneNumber: string;
+    company: string;
+    jobTitle: string;
+  } | null;
+};
+
+// MAIN FUNCTION
 function UpdateContact() {
   const context = useContext(UserContext);
   return (
@@ -65,39 +102,7 @@ function UpdateContact() {
     </Container>
   );
 }
-type FormDataType = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  company: string;
-  jobTitle: string;
-};
-type contactResponse = {
-  success: boolean;
-  data: {
-    id: number;
-    firstName: string;
-    lastName?: string;
-    email: string;
-    phoneNumber: string;
-    company: string;
-    jobTitle: string;
-  };
-  message?: string;
-};
-type openUpdateProp = {
-  setOpenUpdatePopup: React.Dispatch<React.SetStateAction<boolean>>;
-  updateItem: {
-    id: number;
-    firstName: string;
-    lastName?: string;
-    email: string;
-    phoneNumber: string;
-    company: string;
-    jobTitle: string;
-  } | null;
-};
+
 function ContactForm({ setOpenUpdatePopup, updateItem }: openUpdateProp) {
   const [formData, setFormData] = useState<FormDataType>({
     firstName: updateItem?.firstName || "",
@@ -107,6 +112,7 @@ function ContactForm({ setOpenUpdatePopup, updateItem }: openUpdateProp) {
     company: updateItem?.company || "",
     jobTitle: updateItem?.jobTitle || "",
   });
+  const context = useContext(UserContext);
   useEffect(() => {
     if (updateItem) {
       setFormData({
@@ -132,6 +138,7 @@ function ContactForm({ setOpenUpdatePopup, updateItem }: openUpdateProp) {
         }
       );
       const data: contactResponse = res.data;
+
       if (data.success === true) {
         setFormData({
           firstName: "",
@@ -142,14 +149,24 @@ function ContactForm({ setOpenUpdatePopup, updateItem }: openUpdateProp) {
           jobTitle: "",
         });
         setLoading(false);
-        return setOpenUpdatePopup(false);
+        setOpenUpdatePopup(false);
+        context?.setReload(true);
       } else {
-        console.log(data.message);
+        context?.setCurrentError({
+          ocurred: true,
+          message: data.message || "Something went wrong",
+        });
       }
       setLoading(false);
     } catch (error) {
-      setLoading(false);
-      console.log(error);
+      if (axios.isAxiosError(error)) {
+        context?.setCurrentError({
+          ocurred: true,
+          message:
+            error.response?.data?.message ||
+            "Something went wrong while updating the contact",
+        });
+      }
     }
   }
   return (
