@@ -10,12 +10,17 @@ import {
   TableCell,
   Container,
   TableBody,
+  Backdrop,
 } from "@mui/material";
 import Topbar from "../components/Topbar.tsx";
 import AddIcon from "@mui/icons-material/Add";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Banner from "../components/Banner.tsx";
+import AddContact from "../components/AddContact.tsx";
+import KebabMenu from "../components/KebabMenu.tsx";
+import UpdateContact from "../components/UpdateContact.tsx";
+import { UserContext } from "../UserContextProvider.tsx";
 
 type contactResponse = {
   data: {
@@ -31,10 +36,12 @@ type contactResponse = {
 };
 function Home() {
   const [contactData, setContactData] = useState<contactResponse | null>(null);
+  const context = useContext(UserContext);
   const [errorOcurred, setErrorOcurred] = useState({
     ocurred: false,
     message: "",
   });
+  const [addContactOpen, setAddContactOpen] = useState(false);
   async function GetContactData() {
     try {
       const res = await axios.get("http://localhost:8000/api/v1/contacts", {
@@ -42,7 +49,6 @@ function Home() {
       });
       const data: contactResponse = res.data;
       if (data) {
-        console.log(data);
         setContactData(data);
       } else {
         setErrorOcurred({
@@ -70,12 +76,13 @@ function Home() {
         flexDirection: "column",
         position: "relative",
         bgcolor: "primary.dark",
+        pb: 10,
       }}
     >
       {/* ACTIONS  */}
       <Topbar />
       {contactData === null && <LinearProgress />}
-      <AddButton />
+      <AddButton setAddContactOpen={setAddContactOpen} />
       <Snackbar
         open={errorOcurred.ocurred}
         autoHideDuration={6000}
@@ -84,11 +91,27 @@ function Home() {
       />
       {/* BANNER  */}
       <Banner />
-
       {/* TABLE  */}
       <Container sx={{ bgcolor: "secondary.main", p: 2, borderRadius: "10px" }}>
         {contactData != null && <DataTable contactData={contactData} />}
       </Container>
+
+      {/* ADD CONTACT BACKDROP  */}
+      <Backdrop
+        sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
+        open={addContactOpen}
+      >
+        <AddContact setAddContactOpen={setAddContactOpen} />
+      </Backdrop>
+      {/* UPDATE CONTACT BACKDROP  */}
+      {context != undefined && (
+        <Backdrop
+          sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
+          open={context.openUpdatePopup}
+        >
+          <UpdateContact />
+        </Backdrop>
+      )}
     </Box>
   );
 }
@@ -127,7 +150,7 @@ function DataTable({ contactData }: DataTableProps) {
           {contactData?.data.map((row, index) => (
             <TableRow
               key={row.id}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              sx={{ cursor: "pointer", ":hover": { bgcolor: "#eee" } }}
             >
               <TableCell sx={{ fontSize: 15, border: 0 }}>
                 {index + 1}
@@ -147,8 +170,19 @@ function DataTable({ contactData }: DataTableProps) {
               <TableCell sx={{ fontSize: 15, border: 0 }} align="left">
                 {row.company}
               </TableCell>
-              <TableCell sx={{ fontSize: 15, border: 0 }} align="left">
+              <TableCell
+                sx={{
+                  fontSize: 15,
+                  border: 0,
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+                align="left"
+              >
                 {row.jobTitle}
+                <KebabMenu id={row.id} item={row} />
               </TableCell>
             </TableRow>
           ))}
@@ -157,15 +191,19 @@ function DataTable({ contactData }: DataTableProps) {
     </TableContainer>
   );
 }
-function AddButton() {
+interface AddButtonProps {
+  setAddContactOpen: (open: boolean) => void;
+}
+function AddButton({ setAddContactOpen }: AddButtonProps) {
   return (
     <Fab
+      onClick={() => setAddContactOpen(true)}
       aria-label="Add Contact"
       variant={"extended"}
       sx={{
-        position: "absolute",
-        bottom: 30,
-        right: 30,
+        position: "fixed",
+        bottom: 20,
+        right: 20,
         color: "white",
         bgcolor: "primary.main",
         ":hover": { bgcolor: "#5634FC" },

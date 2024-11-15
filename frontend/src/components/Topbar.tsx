@@ -3,7 +3,7 @@ import { AppBar, Container, Toolbar, Typography } from "@mui/material";
 function Topbar() {
   return (
     <AppBar
-      position="static"
+      position="sticky"
       sx={{
         bgcolor: "primary.main",
         width: "100%",

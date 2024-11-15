@@ -3,3 +3,11 @@
   padding: 0;
   font-family: "Poppins";
 }
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-thumb {
+  width: 100%;
+  background-color: #5869fc;
+}
