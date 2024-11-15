@@ -110,3 +110,31 @@ export const UpdateContactInfoController = async (
     return next(error);
   }
 };
+
+//DELETE CONTACT
+export const DeleteContactInfoController = async (
+  req: Request,
+  res: any,
+  next: NextFunction
+) => {
+  try {
+    const ReqParams = req.params;
+    if (!ReqParams.id) {
+      return next(ErrorHandler(400, "No valid id found for deleting contact"));
+    }
+    const deleteContact = await prisma.contact.delete({
+      where: { id: Number(ReqParams.id) },
+    });
+    if (!deleteContact) {
+      return next(
+        ErrorHandler(
+          500,
+          "Something went wrong while deleting contact from database"
+        )
+      );
+    }
+    return res.status(200).json({ success: true, data: deleteContact });
+  } catch (error) {
+    return next(error);
+  }
+};
