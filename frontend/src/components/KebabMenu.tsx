@@ -5,6 +5,7 @@ import { UserContext } from "../UserContextProvider.tsx";
 import { Delete, Update } from "@mui/icons-material";
 import axios from "axios";
 
+// TYPES
 type contactResponse = {
   success: boolean;
   data: {
@@ -32,6 +33,7 @@ interface menuProp {
   };
 }
 
+// FUNCTION
 function KebabMenu({ id, item }: menuProp) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 

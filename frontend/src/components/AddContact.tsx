@@ -96,6 +96,16 @@ function ContactForm({ setAddContactOpen }: AddButtonProps) {
   async function AddContactEntry(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     try {
+      if (
+        Object.entries(formData).some(
+          ([key, value]) => value === "" && key !== "lastName"
+        )
+      ) {
+        return context?.setCurrentError({
+          ocurred: true,
+          message: "Field is missing",
+        });
+      }
       setLoading(true);
       const res = await axios.post(
         "http://localhost:8000/api/v1/contacts",
@@ -147,12 +157,42 @@ function ContactForm({ setAddContactOpen }: AddButtonProps) {
       }}
     >
       {[
-        { label: "First Name", id: "firstName", type: "text" },
-        { label: "Last Name", id: "lastName", type: "text" },
-        { label: "Email", id: "email", type: "text" },
-        { label: "Phone Number", id: "phoneNumber", type: "number" },
-        { label: "Company", id: "company", type: "text" },
-        { label: "Job Title", id: "jobTitle", type: "text" },
+        {
+          placeholder: "eg John, Azaan",
+          label: "First Name",
+          id: "firstName",
+          type: "text",
+        },
+        {
+          placeholder: "Optional",
+          label: "Last Name",
+          id: "lastName",
+          type: "text",
+        },
+        {
+          placeholder: "eg xyz@gmail.com",
+          label: "Email",
+          id: "email",
+          type: "text",
+        },
+        {
+          placeholder: "eg 888999xxxx",
+          label: "Phone Number",
+          id: "phoneNumber",
+          type: "number",
+        },
+        {
+          placeholder: "eg Erino",
+          label: "Company",
+          id: "company",
+          type: "text",
+        },
+        {
+          placeholder: "SDE",
+          label: "Job Title",
+          id: "jobTitle",
+          type: "text",
+        },
       ].map((item, index) => (
         <div
           key={index}
@@ -165,11 +205,18 @@ function ContactForm({ setAddContactOpen }: AddButtonProps) {
           <label style={{ color: "#000", fontSize: 16 }}>{item.label}</label>
           <input
             type={item.type}
+            placeholder={item.placeholder}
             id={item.id}
             value={formData[item.id as keyof FormDataType]}
-            onChange={(e) =>
-              setFormData({ ...formData, [item.id]: e.target.value.trim() })
-            }
+            onChange={(e) => {
+              if (item.id === "company" || item.id === "jobTitle") {
+                return setFormData({
+                  ...formData,
+                  [item.id]: e.target.value,
+                });
+              }
+              setFormData({ ...formData, [item.id]: e.target.value.trim() });
+            }}
             style={{
               border: 0,
               backgroundColor: "#eee",

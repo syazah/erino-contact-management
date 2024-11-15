@@ -11,6 +11,7 @@ import {
   Container,
   TableBody,
   Backdrop,
+  Typography,
 } from "@mui/material";
 import Topbar from "../components/Topbar.tsx";
 import AddIcon from "@mui/icons-material/Add";
@@ -177,47 +178,62 @@ function DataTable({ contactData }: DataTableProps) {
             </TableCell>
           </TableRow>
         </TableHead>
-        <TableBody>
-          {contactData?.data.map((row, index) => (
-            <TableRow
-              key={row.id}
-              sx={{ cursor: "pointer", ":hover": { bgcolor: "#eee" } }}
-            >
-              <TableCell sx={{ fontSize: 15, border: 0 }}>
-                {index + 1}
-              </TableCell>
-              <TableCell sx={{ fontSize: 15, border: 0 }} align="left">
-                {row.firstName}
-              </TableCell>
-              <TableCell sx={{ fontSize: 15, border: 0 }} align="left">
-                {row.lastName}
-              </TableCell>
-              <TableCell sx={{ fontSize: 15, border: 0 }} align="left">
-                {row.email}
-              </TableCell>
-              <TableCell sx={{ fontSize: 15, border: 0 }} align="left">
-                {row.phoneNumber}
-              </TableCell>
-              <TableCell sx={{ fontSize: 15, border: 0 }} align="left">
-                {row.company}
-              </TableCell>
-              <TableCell
-                sx={{
-                  fontSize: 15,
-                  border: 0,
-                  display: "flex",
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-                align="left"
+        {contactData?.data.length === 0 ? (
+          <Container
+            sx={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Typography>
+              No contacts listed, kindly add a contact to see it here
+            </Typography>
+          </Container>
+        ) : (
+          <TableBody>
+            {contactData?.data.map((row, index) => (
+              <TableRow
+                key={row.id}
+                sx={{ cursor: "pointer", ":hover": { bgcolor: "#eee" } }}
               >
-                {row.jobTitle}
-                <KebabMenu id={row.id} item={row} />
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
+                <TableCell sx={{ fontSize: 15, border: 0 }}>
+                  {index + 1}
+                </TableCell>
+                <TableCell sx={{ fontSize: 15, border: 0 }} align="left">
+                  {row.firstName}
+                </TableCell>
+                <TableCell sx={{ fontSize: 15, border: 0 }} align="left">
+                  {row.lastName}
+                </TableCell>
+                <TableCell sx={{ fontSize: 15, border: 0 }} align="left">
+                  {row.email}
+                </TableCell>
+                <TableCell sx={{ fontSize: 15, border: 0 }} align="left">
+                  {row.phoneNumber}
+                </TableCell>
+                <TableCell sx={{ fontSize: 15, border: 0 }} align="left">
+                  {row.company}
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontSize: 15,
+                    border: 0,
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                  align="left"
+                >
+                  {row.jobTitle}
+                  <KebabMenu id={row.id} item={row} />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        )}
       </Table>
     </TableContainer>
   );

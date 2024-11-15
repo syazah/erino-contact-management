@@ -129,6 +129,16 @@ function ContactForm({ setOpenUpdatePopup, updateItem }: openUpdateProp) {
   async function UpdateContactEntry(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     try {
+      if (
+        Object.entries(formData).some(
+          ([key, value]) => value === "" && key !== "lastName"
+        )
+      ) {
+        return context?.setCurrentError({
+          ocurred: true,
+          message: "Field is missing",
+        });
+      }
       setLoading(true);
       const res = await axios.put(
         `http://localhost:8000/api/v1/contacts/${updateItem?.id}`,
@@ -200,9 +210,15 @@ function ContactForm({ setOpenUpdatePopup, updateItem }: openUpdateProp) {
             type={item.type}
             id={item.id}
             value={formData[item.id as keyof FormDataType]}
-            onChange={(e) =>
-              setFormData({ ...formData, [item.id]: e.target.value.trim() })
-            }
+            onChange={(e) => {
+              if (item.id === "company" || item.id === "jobTitle") {
+                return setFormData({
+                  ...formData,
+                  [item.id]: e.target.value,
+                });
+              }
+              setFormData({ ...formData, [item.id]: e.target.value.trim() });
+            }}
             style={{
               border: 0,
               backgroundColor: "#eee",
